@@ -1,9 +1,9 @@
 lio_sam:
 
   # Topics
-  pointCloudTopic: "points_raw"               # Point cloud data
-  imuTopic: "imu_raw"                         # IMU data
-  odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
+  pointCloudTopic: "velodyne_points"               # Point cloud data
+  imuTopic: "nav/filtered_imu/data"                         # IMU data
+  odomTopic: "nav/odom"                   # IMU pre-preintegration odometry, same frequency as IMU
   gpsTopic: "odometry/gpsz"                   # GPS odometry topic from navsat, see module_navsat.launch file
 
   # Frames
@@ -13,13 +13,13 @@ lio_sam:
   mapFrame: "map"
 
   # GPS Settings
-  useImuHeadingInitialization: true           # if using GPS data, set to "true"
+  useImuHeadingInitialization: false          # if using GPS data, set to "true"
   useGpsElevation: false                      # if GPS elevation is bad, set to "false"
   gpsCovThreshold: 2.0                        # m^2, threshold for using GPS data
   poseCovThreshold: 25.0                      # m^2, threshold for using GPS data
   
   # Export settings
-  savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
+  savePCD: true                               # https://github.com/TixiaoShan/LIO-SAM/issues/3
   savePCDDirectory: "/Downloads/LOAM/"        # in your home folder, starts and ends with "/". Warning: the code deletes "LOAM" folder then recreates it. See "mapOptimization" for implementation
 
   # Sensor Settings
@@ -39,19 +39,23 @@ lio_sam:
   imuRPYWeight: 0.01
 
   # Extrinsics: T_lb (lidar -> imu)
-  extrinsicTrans: [0.0, 0.0, 0.0]
-  extrinsicRot: [-1, 0, 0,
-                  0, 1, 0,
-                  0, 0, -1]
-  extrinsicRPY: [0, -1, 0,
-                 1, 0, 0,
-                 0, 0, 1]
-  # extrinsicRot: [1, 0, 0,
-  #                 0, 1, 0,
-  #                 0, 0, 1]
-  # extrinsicRPY: [1, 0, 0,
-  #                 0, 1, 0,
-  #                 0, 0, 1]
+  #extrinsicTrans: [0.0, 0.0, 0.0]
+  extrinsicTrans: [0.02, 0.015, -0.025]
+  #extrinsicTrans: [0.03, 0.005, -0.035]
+
+  #extrinsicTrans: [0.0, 0.0, 0.28]
+  #extrinsicRot: [-1, 0, 0,
+  #                0, 1, 0,
+  #                0, 0, -1]
+  #extrinsicRPY: [0, -1, 0,
+  #               1, 0, 0,
+  #               0, 0, 1]
+  extrinsicRot: [0, -1, 0,
+                  -1, 0, 0,
+                   0, 0, -1]
+  extrinsicRPY: [1, 0, 0,
+                   0, 1, 0,
+                   0, 0, 1]
 
   # LOAM feature threshold
   edgeThreshold: 1.0
@@ -146,13 +150,13 @@ ekf_gps:
   #                            x     y     z     r     p     y   x_dot  y_dot  z_dot  r_dot p_dot y_dot x_ddot y_ddot z_ddot
   process_noise_covariance: [  1.0,  0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0,    0,    0,      0,
                                0,    1.0,  0,    0,    0,    0,    0,     0,     0,     0,    0,    0,    0,    0,      0,
-                               0,    0,    10.0, 0,    0,    0,    0,     0,     0,     0,    0,    0,    0,    0,      0,
-                               0,    0,    0,    0.03, 0,    0,    0,     0,     0,     0,    0,    0,    0,    0,      0,
-                               0,    0,    0,    0,    0.03, 0,    0,     0,     0,     0,    0,    0,    0,    0,      0,
-                               0,    0,    0,    0,    0,    0.1,  0,     0,     0,     0,    0,    0,    0,    0,      0,
-                               0,    0,    0,    0,    0,    0,    0.25,  0,     0,     0,    0,    0,    0,    0,      0,
-                               0,    0,    0,    0,    0,    0,    0,     0.25,  0,     0,    0,    0,    0,    0,      0,
-                               0,    0,    0,    0,    0,    0,    0,     0,     0.04,  0,    0,    0,    0,    0,      0,
+                               0,    0,    50.0, 0,    0,    0,    0,     0,     0,     0,    0,    0,    0,    0,      0,
+                               0,    0,    0,    0.5, 0,    0,    0,     0,     0,     0,    0,    0,    0,    0,      0,
+                               0,    0,    0,    0,    0.5, 0,    0,     0,     0,     0,    0,    0,    0,    0,      0,
+                               0,    0,    0,    0,    0,    0.5,  0,     0,     0,     0,    0,    0,    0,    0,      0,
+                               0,    0,    0,    0,    0,    0,    0.35,  0,     0,     0,    0,    0,    0,    0,      0,
+                               0,    0,    0,    0,    0,    0,    0,     0.35,  0,     0,    0,    0,    0,    0,      0,
+                               0,    0,    0,    0,    0,    0,    0,     0,     0.06,  0,    0,    0,    0,    0,      0,
                                0,    0,    0,    0,    0,    0,    0,     0,     0,     0.01, 0,    0,    0,    0,      0,
                                0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0.01, 0,    0,    0,      0,
                                0,    0,    0,    0,    0,    0,    0,     0,     0,     0,    0,    0.5,  0,    0,      0,
